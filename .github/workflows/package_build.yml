@@ -1,0 +1,28 @@
+name: Build Packages
+on:
+  repository_dispatch:
+    types: build_packages
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag'
+        required: false
+        default: '0.0.0'
+
+jobs:
+  build_packages:
+    strategy:
+      matrix:
+        pkg_type: ["dpkg", "rpm"]
+    runs-on: ubuntu-latest
+    outputs:
+      job-status: ${{ job.status }}
+    name: Build ${{ matrix.pkg_type }} packages
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build ${{ matrix.pkg_type }} packages
+        uses: ./.github/actions/build_package
+        with:
+          package_type: ${{ matrix.pkg_type }}
+      - name: Check output of build
+        run: "echo Result: ${{ steps.build_deb.outputs.result }}"
