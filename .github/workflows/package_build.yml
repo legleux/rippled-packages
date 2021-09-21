@@ -1,0 +1,123 @@
+name: Build Packages
+on:
+  repository_dispatch:
+    types: build_packages
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag'
+        required: false
+        default: '0.0.0'
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        pkg_type: ["dpkg", "rpm"]
+    runs-on: ubuntu-latest
+    outputs:
+      job-status: ${{ job.status }}
+    name: Build ${{ matrix.pkg_type }} packages
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build ${{ matrix.pkg_type }} packages
+        uses: ./.github/actions/build_fake
+        with:
+          package_type: ${{ matrix.pkg_type }}
+      - name: Check output of build
+        run: "echo Result: ${{ steps.build_deb.outputs.result }}"
+
+  test_pkg_deb_install:
+    runs-on: ubuntu-20.04
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Get package
+        uses: actions/download-artifact@v2
+        with:
+          name: packages
+          path: packages
+
+      - name: Test Package Install
+        run: |
+          docker run -v $PWD/test:/test -v $PWD/packages:/packages ubuntu:20.04 /bin/bash -c "chmod +x /test/fake_install.sh && chmod -R +x /packages/ && /test/fake_install.sh"
+
+  test_pkg_rpm_install:
+    runs-on: ubuntu-20.04
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Get package
+        uses: actions/download-artifact@v2
+        with:
+          name: packages
+          path: packages
+      - name: Test Package Install
+        run: |
+          docker run -v $PWD/test:/test -v $PWD/packages:/packages centos:7 /bin/bash -c "chmod +x /test/fake_install.sh && chmod -R +x /packages/ && /test/fake_install.sh"
+
+  release:
+    runs-on: ubuntu-20.04
+    needs: ['test_pkg_rpm_install', 'test_pkg_deb_install']
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: get rippled version
+        id: get_version
+        uses: ./.github/actions/get_version
+
+      - name: release
+        uses: actions/create-release@v1
+        id: create_release
+        with:
+          draft: true  # manual input conditions?
+          prerelease: true
+          release_name: ${{ steps.get_version.outputs.rippled_version }}
+          tag_name: ${{ steps.get_version.outputs.rippled_version }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+
+      - name:  get packages # tar to preserve perms
+        uses: actions/download-artifact@v2
+        with:
+          name: packages
+          path: packages
+
+      - uses: shogo82148/actions-upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: packages/*
+
+      # - name: tar packages # may have to individually tar each distro to preserve file perms
+      #   run: zip -r my-artifact.zip packages
+
+      # - name: Upload artifacts packages
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: packages
+      #     path: my-artifact.zip
+
+      # - name: they should be there?
+      #   run: tree packages/
+      # - name: Upload asset to release
+      #   uses: csexton/release-asset-action@v2
+      #   with:
+      #     pattern: "packages/*"
+      #     release-url: ${{ steps.create_release.outputs.upload_url }}
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # - name: Upload Release Assets
+      #   id: upload-release-asset
+      #   uses: actions/upload-release-asset@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+      #     asset_path: packages
+      #     asset_name: my-artifact.zip
+      #     asset_content_type: application/zip

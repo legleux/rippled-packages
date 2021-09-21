@@ -1,0 +1,26 @@
+name: 'Build Package'
+description: 'Package Building Action'
+inputs:
+  package_type:
+    description: 'Type of package to build, currently deb or RPM'
+    required: true
+    default: 'dpkg'
+outputs:
+  result:
+    description: "Build result"
+    value: ${{ steps.gen_output.outputs.result }}
+runs:
+  using: "composite"
+  steps:
+    - name: Build ${{ inputs.package_type }} package
+      shell: bash
+      run: |
+        mkdir -p packages/${{ inputs.package_type }}
+        echo "echo am ${{ inputs.package_type }} package" >> packages/${{ inputs.package_type }}/${{ inputs.package_type }}_rippled
+        chmod +x packages/${{ inputs.package_type }}/${{ inputs.package_type }}_rippled
+
+    - name: Upload artifacts packages
+      uses: actions/upload-artifact@v2
+      with:
+        name: packages
+        path: packages
