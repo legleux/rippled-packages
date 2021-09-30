@@ -42,7 +42,7 @@ if(DOCKER)
     docker build
       --pull
       --build-arg GIT_COMMIT=${commit_hash}
-      -t rippled-rpm-builder:${container_label}
+      -t legleux/rippled-rpm-builder:legleux
       $<$<BOOL:${rpm_cache_from}>:--cache-from=${rpm_cache_from}>
       -f centos-builder/Dockerfile .
     WORKING_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/Builds/containers
@@ -70,7 +70,7 @@ if(DOCKER)
       -v ${CMAKE_CURRENT_SOURCE_DIR}/Builds/containers:/opt/rippled_bld/pkg/rippled/Builds/containers
       -v ${PKG_OUTPUT_DIR}/rpm:/opt/rippled_bld/pkg/out
       "$<$<BOOL:${map_user}>:--volume=/etc/passwd:/etc/passwd:ro;--volume=/etc/group:/etc/group:ro;--volume=/etc/shadow:/etc/shadow:ro;--user=${DOCKER_USER_ID}:${DOCKER_GROUP_ID}>"
-      -t rippled-rpm-builder:${container_label}
+      -t legleux/rippled-rpm-builder:legleux
       /bin/bash -c "cp -fpu rippled/Builds/containers/packaging/rpm/build_rpm.sh . && ./build_rpm.sh"
     VERBATIM
     USES_TERMINAL
@@ -94,7 +94,7 @@ if(DOCKER)
       --pull
       --build-arg DIST_TAG=16.04
       --build-arg GIT_COMMIT=${commit_hash}
-      -t rippled-dpkg-builder:${container_label}
+      -t legleux/rippled-dpkg-builder:legleux
       $<$<BOOL:${dpkg_cache_from}>:--cache-from=${dpkg_cache_from}>
       -f ubuntu-builder/Dockerfile .
     WORKING_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/Builds/containers
@@ -135,7 +135,7 @@ if(DOCKER)
       -v ${CMAKE_CURRENT_SOURCE_DIR}/Builds/containers:/opt/rippled_bld/pkg/rippled/Builds/containers
       -v ${PKG_OUTPUT_DIR}/dpkg:/opt/rippled_bld/pkg/out
       "$<$<BOOL:${map_user}>:--volume=/etc/passwd:/etc/passwd:ro;--volume=/etc/group:/etc/group:ro;--volume=/etc/shadow:/etc/shadow:ro;--user=${DOCKER_USER_ID}:${DOCKER_GROUP_ID}>"
-      -t rippled-dpkg-builder:${container_label}
+      -t legleux/rippled-dpkg-builder:legleux
       /bin/bash -c "cp -fpu rippled/Builds/containers/packaging/dpkg/build_dpkg.sh . && ./build_dpkg.sh"
     VERBATIM
     USES_TERMINAL
@@ -178,7 +178,7 @@ if(DOCKER)
       --build-arg DIST_TAG=18.04
       --build-arg GIT_COMMIT=${commit_hash}
       --build-arg CI_USE=true
-      -t rippled-ci-builder:${container_label}
+      -t legleux/rippled-ci-builder:legleux
       $<$<BOOL:${ci_cache_from}>:--cache-from=${ci_cache_from}>
       -f ubuntu-builder/Dockerfile .
     WORKING_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/Builds/containers
