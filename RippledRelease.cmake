@@ -42,7 +42,7 @@ if(DOCKER)
     docker build
       --pull
       --build-arg GIT_COMMIT=${commit_hash}
-      -t legleux/rippled-rpm-builder:legleux
+      -t legleux/rippled-rpm-builder:2020-02-10
       $<$<BOOL:${rpm_cache_from}>:--cache-from=${rpm_cache_from}>
       -f centos-builder/Dockerfile .
     WORKING_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/Builds/containers
@@ -70,7 +70,7 @@ if(DOCKER)
       -v ${CMAKE_CURRENT_SOURCE_DIR}/Builds/containers:/opt/rippled_bld/pkg/rippled/Builds/containers
       -v ${PKG_OUTPUT_DIR}/rpm:/opt/rippled_bld/pkg/out
       "$<$<BOOL:${map_user}>:--volume=/etc/passwd:/etc/passwd:ro;--volume=/etc/group:/etc/group:ro;--volume=/etc/shadow:/etc/shadow:ro;--user=${DOCKER_USER_ID}:${DOCKER_GROUP_ID}>"
-      -t legleux/rippled-rpm-builder:legleux
+      -t legleux/rippled-rpm-builder:2020-02-10
       /bin/bash -c "cp -fpu rippled/Builds/containers/packaging/rpm/build_rpm.sh . && ./build_rpm.sh"
     VERBATIM
     USES_TERMINAL
