@@ -1,0 +1,23 @@
+name: Build DEB Package
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deb_package_job:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build deb packages
+        run: |
+          ls -lah
+          mkdir build && cd build
+          cmake ..
+          cmake --build . --target dpkg --parallel $(nproc)
+      - name: Save packages
+        uses: actions/upload-artifact@v2
+        with:
+          name: DEB Packages
+          path: packages
