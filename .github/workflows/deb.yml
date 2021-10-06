@@ -21,3 +21,10 @@ jobs:
         with:
           name: DEB Packages
           path: packages
+  test_pkg_install:
+    runs-on: ubuntu-20.04
+    needs: build_deb
+    steps:
+      - name: Test Package Install
+        run: |
+          docker run -v $PWD/test:/test -v $PWD/packages:/packages ubuntu:20.04 /bin/bash -c "ls -lha {/test,/packages,/} && ./test/install.sh"

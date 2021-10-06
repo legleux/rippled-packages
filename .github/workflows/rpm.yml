@@ -5,7 +5,7 @@ on:
       - main
 
 jobs:
-  rpm_package_job:
+  build_rpm:
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout
@@ -21,3 +21,10 @@ jobs:
         with:
           name: RPM Packages
           path: packages
+  test_pkg_install:
+    runs-on: ubuntu-20.04
+    needs: build_rpm
+    steps:
+      - name: Test Package Install
+        run: |
+          docker run -v $PWD/test:/test -v $PWD/packages:/packages centos:7 /bin/bash -c "ls -lha {/test,/packages,/} && ./test/install.sh"
