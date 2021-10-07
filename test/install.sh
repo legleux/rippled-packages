@@ -1,4 +1,5 @@
-. /etc/release
+. /etc/os-release
+
 if [ "$ID" = "centos" ]; then
   . ./packages/rpm/build_vars
   yum install ./packages/rpm/$rpm_version_release.x86_64.rpm
@@ -8,4 +9,5 @@ elif [ "$ID" = "ubuntu" ]; then
 else
   echo "Unsupported OS!"
 fi
+
 rippled --unittest

@@ -10,26 +10,33 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
       - name: Build rpm packages
-        run: mkdir packages && echo "echo hi" >> ./packages/file.txt
+        run: |
+          ls -lah
+          mkdir build && cd build
+          cmake ..
+          cmake --build . --target rpm --parallel $(nproc)
+
       - name: Save packages
         uses: actions/upload-artifact@v2
         with:
           name: rpm_packages
           path: packages
+
   test_pkg_install:
     runs-on: ubuntu-20.04
     needs: build_rpm
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
       - name: Get package
         uses: actions/download-artifact@v2
         with:
           name: rpm_packages
           path: packages
-      - name: List
-        run: ls -lh {.,test,packages}
+
       - name: Test Package Install
         run: |
-          docker run -v $PWD/test:/test -v $PWD/packages:/packages ubuntu:20.04 /bin/bash -c "ls -lha {/test,/packages,/} && ./test/install.sh"
+          docker run -v $PWD/test:/test -v $PWD/packages:/packages ubuntu:20.04 /bin/bash -c "./test/install.sh"
