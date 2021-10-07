@@ -11,7 +11,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Build rpm packages
+      - name: Build RPM packages
         run: |
           ls -lah
           mkdir build && cd build
@@ -39,4 +39,4 @@ jobs:
 
       - name: Test Package Install
         run: |
-          docker run -v $PWD/test:/test -v $PWD/packages:/packages ubuntu:20.04 /bin/bash -c "./test/install.sh"
+          docker run -v $PWD/test:/test -v $PWD/packages:/packages centos:7 /bin/bash -c "./test/install.sh"

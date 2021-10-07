@@ -1,5 +1,5 @@
 # Packages for rippled
-![DEB Packages](https://github.com/legleux/rippled-packages/actions/workflows/deb.yml/badge.svg)
+![deb Packages](https://github.com/legleux/rippled-packages/actions/workflows/deb.yml/badge.svg)
 ![RPM Packages](https://github.com/legleux/rippled-packages/actions/workflows/rpm.yml/badge.svg)
 
 This contains code to build deb and rpm packages for rippled by referencing the original rippled source repo.
