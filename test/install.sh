@@ -8,5 +8,4 @@ elif [ "$ID" = "ubuntu" ]; then
 else
   echo "Unsupported OS!"
 fi
-which rippled
 rippled --unittest

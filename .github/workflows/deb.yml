@@ -19,12 +19,19 @@ jobs:
       - name: Save packages
         uses: actions/upload-artifact@v2
         with:
-          name: DEB Packages
+          name: deb_packages
           path: packages
   test_pkg_install:
     runs-on: ubuntu-20.04
     needs: build_deb
     steps:
+      - name: Get package
+        uses: actions/download-artifact@v2
+        with:
+          name: deb_packages
+          path: packages
+      - name: List
+        run: ls -lh {.,test,packages}
       - name: Test Package Install
         run: |
           docker run -v $PWD/test:/test -v $PWD/packages:/packages ubuntu:20.04 /bin/bash -c "ls -lha {/test,/packages,/} && ./test/install.sh"
