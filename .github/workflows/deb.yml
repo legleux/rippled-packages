@@ -11,11 +11,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build deb packages
-        run: |
-          ls -lah
-          mkdir build && cd build
-          cmake ..
-          cmake --build . --target dpkg --parallel $(nproc)
+        run: mkdir packages && echo "echo hi" >> ./packages/file.txt
       - name: Save packages
         uses: actions/upload-artifact@v2
         with:
