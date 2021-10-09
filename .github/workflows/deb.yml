@@ -40,3 +40,17 @@ jobs:
       - name: Test Package Install
         run: |
           docker run -v $PWD/test:/test -v $PWD/packages:/packages ubuntu:20.04 /bin/bash -c "./test/install.sh"
+
+  update_readme: # TODO: use workflow_run
+    runs-on: ubuntu-20.04
+    needs: test_pkg_install
+    steps:
+      - name: Write SHA to README
+        run: "sed -i 's/commit: \\[.*\\]/commit: \\[${{github.event.client_payload.SHA}}\\]/g' README.md"
+      - name: Update README
+        run: |
+          git config --global user.name 'Autobot'
+          git config --global user.email 'your-username@users.noreply.github.com'
+          git add README.md
+          git commit -m"Packaged ${{github.event.client_payload.SHA}}"
+          git push
