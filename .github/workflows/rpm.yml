@@ -2,6 +2,7 @@ name: Build RPM Package
 on:
   repository_dispatch:
     types: build_packages
+  workflow_dispatch:
 
 jobs:
   build_rpm:
