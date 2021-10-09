@@ -5,41 +5,41 @@ on:
   workflow_dispatch:
 
 jobs:
-  build_deb:
-    runs-on: ubuntu-18.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+  # build_deb:
+  #   runs-on: ubuntu-18.04
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
 
-      - name: Build deb packages
-        run: |
-          ls -lah
-          mkdir build && cd build
-          cmake ..
-          cmake --build . --target dpkg --parallel $(nproc)
+  #     - name: Build deb packages
+  #       run: |
+  #         ls -lah
+  #         mkdir build && cd build
+  #         cmake ..
+  #         cmake --build . --target dpkg --parallel $(nproc)
 
-      - name: Save packages
-        uses: actions/upload-artifact@v2
-        with:
-          name: deb_packages
-          path: packages
+  #     - name: Save packages
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: deb_packages
+  #         path: packages
 
-  test_pkg_install:
-    runs-on: ubuntu-20.04
-    needs: build_deb
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+  # test_pkg_install:
+    # runs-on: ubuntu-20.04
+    # needs: build_deb
+    # steps:
+    #   - name: Checkout
+    #     uses: actions/checkout@v2
 
-      - name: Get package
-        uses: actions/download-artifact@v2
-        with:
-          name: deb_packages
-          path: packages
+    #   - name: Get package
+    #     uses: actions/download-artifact@v2
+    #     with:
+    #       name: deb_packages
+    #       path: packages
 
-      - name: Test Package Install
-        run: |
-          docker run -v $PWD/test:/test -v $PWD/packages:/packages ubuntu:20.04 /bin/bash -c "./test/install.sh"
+    #   - name: Test Package Install
+    #     run: |
+    #       docker run -v $PWD/test:/test -v $PWD/packages:/packages ubuntu:20.04 /bin/bash -c "./test/install.sh"
 
   update_readme: # TODO: use workflow_run
     runs-on: ubuntu-20.04
