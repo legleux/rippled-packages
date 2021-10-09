@@ -1,8 +1,7 @@
 name: Build RPM Package
 on:
-  push:
-    branches:
-      - main
+  repository_dispatch:
+    types: build_packages
 
 jobs:
   build_rpm:

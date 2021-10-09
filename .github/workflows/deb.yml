@@ -1,8 +1,7 @@
 name: Build DEB Package
 on:
-  push:
-    branches:
-      - main
+  repository_dispatch:
+    types: build_packages
 
 jobs:
   build_deb:
@@ -45,8 +44,12 @@ jobs:
     runs-on: ubuntu-20.04
     needs: test_pkg_install
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
       - name: Write SHA to README
         run: "sed -i 's/commit: \\[.*\\]/commit: \\[${{github.event.client_payload.SHA}}\\]/g' README.md"
+
       - name: Update README
         run: |
           git config --global user.name 'Autobot'
