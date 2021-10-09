@@ -43,7 +43,7 @@ jobs:
 
   update_readme: # TODO: use workflow_run
     runs-on: ubuntu-20.04
-    needs: test_pkg_install
+    # needs: test_pkg_install
     steps:
       - name: Checkout
         uses: actions/checkout@v2
