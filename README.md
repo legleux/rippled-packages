@@ -1,5 +1,5 @@
 # Packages for rippled
-Packages for commit: [10e5f877ba4a95bf435bd39c8b2a695e61ea5d6f](https://github.com/legleux/rippled)
+Packages for commit: [60aec9d06263cd1cc4d3a1aa5861d08382938e6e](https://github.com/legleux/rippled)
 
 ![DEB Packages](https://github.com/legleux/rippled-packages/actions/workflows/deb.yml/badge.svg)
 ![RPM Packages](https://github.com/legleux/rippled-packages/actions/workflows/rpm.yml/badge.svg)
