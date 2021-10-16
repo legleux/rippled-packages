@@ -10,7 +10,7 @@ on:
         default: '0.0.0'
 
 jobs:
-  build_packages:
+  build:
     strategy:
       matrix:
         pkg_type: ["dpkg", "rpm"]
@@ -20,9 +20,84 @@ jobs:
     name: Build ${{ matrix.pkg_type }} packages
     steps:
       - uses: actions/checkout@v2
+
       - name: Build ${{ matrix.pkg_type }} packages
         uses: ./.github/actions/build_package
         with:
           package_type: ${{ matrix.pkg_type }}
+
       - name: Check output of build
         run: "echo Result: ${{ steps.build_deb.outputs.result }}"
+
+  test_pkg_deb_install:
+    runs-on: ubuntu-20.04
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Get package
+        uses: actions/download-artifact@v2
+        with:
+          name: packages
+          path: packages
+
+      - name: untar dpkg packages
+        run: cd packages && ls -lh && tar zxvf dpkg_packages.tar.gz
+
+      - name: Test Package Install
+        run: |
+          docker run -v $PWD/test:/test -v $PWD/packages:/packages ubuntu:20.04 /bin/bash -c "ls -lh {packages,test} && chmod +x /test/install.sh && chmod -R +x /packages/ && /test/install.sh"
+
+  test_pkg_rpm_install:
+    runs-on: ubuntu-20.04
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Get package
+        uses: actions/download-artifact@v2
+        with:
+          name: packages
+          path: packages
+
+      - name: untar rpm packages
+        run: cd packages && tar zxvf rpm_packages.tar.gz
+
+      - name: Test Package Install
+        run: |
+          docker run -v $PWD/test:/test -v $PWD/packages:/packages centos:7 /bin/bash -c "ls -lh {packages,test} && chmod +x /test/install.sh && chmod -R +x /packages/ && /test/install.sh"
+
+  release:
+    runs-on: ubuntu-20.04
+    needs: ['test_pkg_rpm_install', 'test_pkg_deb_install']
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: get rippled version
+        id: get_version
+        uses: ./.github/actions/get_version
+
+      - name: release
+        uses: actions/create-release@v1
+        id: create_release
+        with:
+          draft: true  # manual input conditions?
+          prerelease: true
+          release_name: ${{ steps.get_version.outputs.rippled_version }}
+          tag_name: ${{ steps.get_version.outputs.rippled_version }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+
+      - name:  get packages # tar to preserve perms
+        uses: actions/download-artifact@v2
+        with:
+          name: packages
+          path: packages
+
+      - uses: shogo82148/actions-upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: packages/*

@@ -1,0 +1,17 @@
+name: 'Get rippled Version'
+description: "Read rippled version from BuildInfo.cpp"
+outputs:
+  rippled_version:
+    description: "The version of rippled"
+    value: ${{ steps.version.outputs.rippled_version }}
+runs:
+  using: composite
+  steps:
+    - name: Read Version
+      id: version
+      shell: bash
+      run: |
+            export VER_URL="https://raw.githubusercontent.com/legleux/rippled/${{github.event.client_payload.SHA}}/src/ripple/protocol/impl/BuildInfo.cpp"
+            export RIPPLED_VERSION=$(curl -v --silent $VER_URL 2>&1 | egrep -i -o "\b(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9a-z\-]+(\.[0-9a-z\-]+)*)?(\+[0-9a-z\-]+(\.[0-9a-z\-]+)*)?\b" | tail -1)
+            echo $RIPPLED_VERSION
+            echo "::set-output name=rippled_version::$RIPPLED_VERSION"

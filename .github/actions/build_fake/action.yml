@@ -15,14 +15,13 @@ runs:
     - name: Build ${{ inputs.package_type }} package
       shell: bash
       run: |
-          ls -lah
-          mkdir build && cd build
-          cmake ..
-          cmake --build . --target ${{ inputs.package_type }} --parallel $(nproc)
+        mkdir -p packages/${{ inputs.package_type }}
+        echo "echo am ${{ inputs.package_type }} package" >> packages/${{ inputs.package_type }}/rippled
+        chmod +x packages/${{ inputs.package_type }}/rippled
 
     - name: tar packages
       shell: bash
-      run: cd packages && tar czf ${{ inputs.package_type }}_packages.tar.gz ${{ inputs.package_type }}
+      run: cd packages && ls -l && tar czf ${{ inputs.package_type }}_packages.tar.gz ${{ inputs.package_type }}
 
     - name: Upload artifacts packages
       uses: actions/upload-artifact@v2
